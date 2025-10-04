@@ -6,16 +6,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const taskInput = document.getElementById("task-input");
     const taskList = document.getElementById("task-list");
 
-    // Function to add a task
-    function addTask() {
-        const taskText = taskInput.value.trim();
+    // Load tasks from localStorage (or use empty array if none exist)
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
 
-        if (taskText === "") {
-            alert("Enter a task");
-            return;
-        } 
+    // Save tasks to localStorage
+    function saveTasks() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
 
-        // Create list item
+    // Function to create a task element in the DOM
+    function renderTask(taskText) {
         const li = document.createElement("li");
         li.textContent = taskText;
 
@@ -27,11 +27,31 @@ document.addEventListener("DOMContentLoaded", function() {
         // Remove task when button clicked
         button.onclick = function() {
             taskList.removeChild(li);
+
+            // Update tasks array and localStorage
+            tasks = tasks.filter(task => task !== taskText);
+            saveTasks();
         }
 
-        // Append button to li, li to list
         li.appendChild(button);
         taskList.appendChild(li);
+    }
+
+    // Function to add a task (from input field)
+    function addTask() {
+        const taskText = taskInput.value.trim();
+
+        if (taskText === "") {
+            alert("Enter a task");
+            return;
+        } 
+
+        // Add to array and save
+        tasks.push(taskText);
+        saveTasks();
+
+        // Render on page
+        renderTask(taskText);
 
         // Clear input
         taskInput.value = "";
@@ -46,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Invoke addTask once on DOMContentLoaded as per instructions
-    addTask();
+    // Load saved tasks when page loads
+    tasks.forEach(task => renderTask(task));
 
 });
